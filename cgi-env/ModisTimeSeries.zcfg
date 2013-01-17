@@ -1,0 +1,73 @@
+[ModisTimeSeries]
+ Title = Get MODIS Time Series of any location
+ Abstract = Get a MODIS time series of any location
+ processVersion = 1
+ storeSupported = false
+ statusSupported = false
+ serviceProvider = modis_time_series
+ serviceType = Python
+ <MetaData>
+   title = ModisTimeSeries
+ </MetaData>
+ <DataInputs>
+  [epsg]
+   Title = EPSG code of input coordinate system
+   Abstract = EPSG code of input coordinate system.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = EPSG TEST
+   </MetaData>
+   <LiteralData>
+    DataType = integer
+    <Default>
+     CRS = urn:ogc:def:crs:EPSG:6.6:4326
+    </Default>
+    <Supported>
+     CRS = urn:ogc:def:crs:EPSG:6.6:3785
+    </Supported>
+   </LiteralData>
+  [lat]
+   Title = Input latitude
+   Abstract = Input latitude
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Input latitude
+   </MetaData>
+   <LiteralData>
+    DataType = float
+    <Default>
+    </Default>
+   </LiteralData>
+  [lon]
+   Title = Input longitude
+   Abstract = Input longitude
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Input longitude
+   </MetaData>
+   <LiteralData>
+    DataType = float
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [timeseries]
+   Title = Time Series
+   Abstract = MODIS time series for input location
+   <MetaData>
+    title = Time Series
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+    <Supported>
+     mimeType = image/png
+    </Supported>
+   </ComplexData>
+ </DataOutputs>
