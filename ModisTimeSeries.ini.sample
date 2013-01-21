@@ -1,0 +1,7 @@
+[main]
+; SQLAlchemy URL to your spatially enabled database like PostGIS or SpatiaLite
+sqlalchemy.url = sqlite:////path/to/your/spatialite/database
+; SRID identifier of custom MODIS sinusoidal projection
+custom.crs = 10003
+; Path to the MODIS directory
+modis.datadir = /path/to/your/modis/directory/
