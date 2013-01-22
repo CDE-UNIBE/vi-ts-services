@@ -7,6 +7,7 @@ from gdalconst import GA_ReadOnly
 from geoalchemy import WKTSpatialElement
 from geoalchemy import functions as func
 import logging
+import logging.config
 import osgeo.gdal as gdal
 import osgeo.osr as osr
 from pyspatialite import dbapi2 as spatialite
@@ -18,6 +19,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tempfile import NamedTemporaryFile
 
+logging.config.fileConfig('logging.ini')
 log = logging.getLogger(__name__)
 
 # ZOO Constants
@@ -94,7 +96,7 @@ class ModisTimeSeriesHandler(object):
 
         # Create a point from the requested coordinates
         p = WKTSpatialElement('POINT(%s %s)' % coords, custom_crs)
-        tile = session.query(ModisExtent).filter(func.within(p, ModisExtent.geometry)).first()
+        tile = session.query(ModisExtent.tile, ModisExtent.subtile).filter(func.within(p, ModisExtent.geometry)).first()
         if tile is not None:
             modis_file = "/%s/%s/%s/out.tif" % (modis_datadir, tile.tile, tile.subtile)
             return modis_file
