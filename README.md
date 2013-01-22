@@ -15,7 +15,8 @@ Prerequisites
 
 Installation
 ------------
-* Make a local copy of ModisTimeSeries.ini.sample and set configuration options up
+* Make a local copy of ModisTimeSeries.ini.sample and logging.ini.sample
+  and set configuration options up
 * Change the `CGI_DIR` in the Makefile according to your server installation
 * `sudo make install`
 * Check the installation:
