@@ -14,7 +14,10 @@ from pyspatialite import dbapi2 as spatialite
 import rpy2.rinterface as rinterface
 import rpy2.robjects as robjects
 from rpy2.robjects.packages import importr
-import simplejson as json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from tempfile import NamedTemporaryFile
@@ -120,7 +123,8 @@ class ModisTimeSeriesHandler(object):
         result = []
 
         # open the image
-        ds = gdal.Open(datadir, GA_ReadOnly)
+        log.debug("Accessing file: %s" % datadir)
+        ds = gdal.Open(str(datadir), GA_ReadOnly)
         if ds is None:
             log.debug('Could not open image')
             sys.exit(1)
