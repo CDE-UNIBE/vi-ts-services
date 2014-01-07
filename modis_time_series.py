@@ -37,9 +37,11 @@ def ModisTimeSeries(conf, inputs, outputs):
     lon = float(inputs['lon']['value'])
     lat = float(inputs['lat']['value'])
     epsg = int(inputs['epsg']['value'])
+    imageWidth = int(inputs['width']['value'])
+    imageHeight = int(inputs['height']['value'])
 
     handler = ModisTimeSeriesHandler(conf, inputs, outputs)
-    result = handler.get_time_series((lon, lat), epsg, mimeType)
+    result = handler.get_time_series((lon, lat), epsg, mimeType, imageWidth, imageHeight)
 
     return result
 
@@ -54,7 +56,7 @@ class ModisTimeSeriesHandler(object):
         self.config = ConfigParser()
         self.config.read('ModisTimeSeries.ini')
 
-    def get_time_series(self, input_coords, epsg, mimeType):
+    def get_time_series(self, input_coords, epsg, mimeType, width=512, height=512):
 
         # Reproject the input coordinates to the MODIS sinusoidal projection
         coords = self._reproject_coordinates(input_coords, epsg)
@@ -67,7 +69,7 @@ class ModisTimeSeriesHandler(object):
             array_int_values = self._get_value_from_gdal(coords, modis_file)
 
             if mimeType == 'image/png':
-                self.outputs['timeseries']['value'] = self._create_plot(array_int_values)
+                self.outputs['timeseries']['value'] = self._create_plot(array_int_values, width, height)
             else:
                 self.outputs['timeseries']['value'] = json.dumps({'data': array_int_values})
 
@@ -99,9 +101,9 @@ class ModisTimeSeriesHandler(object):
 
         # Create a point from the requested coordinates
         p = WKTSpatialElement('POINT(%s %s)' % coords, custom_crs)
-        tile = session.query(ModisExtent.tile, ModisExtent.subtile).filter(func.within(p, ModisExtent.geometry)).first()
+        tile = session.query(ModisExtent.name).filter(func.within(p, ModisExtent.geometry)).filter(ModisExtent.available == True).first()
         if tile is not None:
-            modis_file = "/%s/%s/%s/out.tif" % (modis_datadir, tile.tile, tile.subtile)
+            modis_file = "/%s/%s/NDVI.tif" % (modis_datadir, tile.name)
             return modis_file
 
         else:
@@ -126,7 +128,7 @@ class ModisTimeSeriesHandler(object):
         log.debug("Accessing file: %s" % datadir)
         ds = gdal.Open(str(datadir), GA_ReadOnly)
         if ds is None:
-            log.debug('Could not open image')
+            log.warn('Could not open image: %s' % str(datadir))
             sys.exit(1)
 
         # get image size
@@ -177,7 +179,7 @@ class ModisTimeSeriesHandler(object):
 
         return (x, y)
 
-    def _create_plot(self, data_array):
+    def _create_plot(self, data_array, width, height):
         """
         Create a plot with R
         """
@@ -193,7 +195,7 @@ class ModisTimeSeriesHandler(object):
         vector = robjects.FloatVector(data_array)
 
         file = NamedTemporaryFile()
-        grdevices.png(file=file.name, width=512, height=512)
+        grdevices.png(file=file.name, width=width, height=height)
         # Plotting code here
         r.par(col="black")
         r.plot(vector, xlab="Image Nr", ylab="Values", main="", type="l")
