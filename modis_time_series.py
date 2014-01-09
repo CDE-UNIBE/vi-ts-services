@@ -2,8 +2,9 @@ import sys
 import time
 
 from ConfigParser import ConfigParser
-from ModisExtent import ModisExtent
 from ModisExtent import ModisAvailableCountry
+from ModisExtent import ModisExtent
+import cairo
 from gdalconst import GA_ReadOnly
 from geoalchemy import WKTSpatialElement
 from geoalchemy import functions as spfunc
@@ -23,6 +24,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import or_
 from tempfile import NamedTemporaryFile
+try:
+    from cStringIO import StringIO
+except ImportError:
+    import StringIO
 
 logging.config.fileConfig('logging.ini')
 log = logging.getLogger(__name__)
@@ -78,8 +83,12 @@ class ModisTimeSeriesHandler(object):
             return SERVICE_SUCCEEDED
 
         else:
-            self.conf["lenv"]["message"] = "No imagery available for requested coordinates."
-            return SERVICE_FAILED
+
+            if mimeType == 'image/png':
+                self.outputs['timeseries']['value'] = self._create_empty_image(width, height)
+            else:
+                self.outputs['timeseries']['value'] = json.dumps({'success': False, 'msg': "No imagery available for requested coordinates."})
+            return SERVICE_SUCCEEDED
 
     def _get_tile(self, coords):
         """
@@ -219,5 +228,33 @@ class ModisTimeSeriesHandler(object):
 
         # Return the file content
         return file.read()
+
+        file.close()
+
+    def _create_empty_image(self, image_width, image_height):
+
+        # Check pycairo capabilities
+        if not (cairo.HAS_IMAGE_SURFACE and cairo.HAS_PNG_FUNCTIONS):
+            raise HTTPBadRequest('cairo was not compiled with ImageSurface and PNG support')
+
+        # Create a new cairo surface
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(image_width), int(image_height))
+
+        ctx = cairo.Context(surface)
+
+        text = "No imagery available for requested coordinates."
+
+        x_bearing, y_bearing, width, height, x_advance, y_advance = ctx.text_extents (text)
+
+        ctx.move_to((image_width / 2) - (width / 2), (image_height / 2) + (height / 2))
+        ctx.set_source_rgba(0, 0, 0, 0.85)
+        ctx.show_text(text)
+
+        file = StringIO()
+        surface.write_to_png(file)
+
+        log.debug(file.getvalue())
+
+        return file.getvalue()
 
         file.close()
