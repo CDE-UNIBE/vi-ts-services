@@ -3,9 +3,10 @@ import time
 
 from ConfigParser import ConfigParser
 from ModisExtent import ModisExtent
+from ModisExtent import ModisAvailableCountry
 from gdalconst import GA_ReadOnly
 from geoalchemy import WKTSpatialElement
-from geoalchemy import functions as func
+from geoalchemy import functions as spfunc
 import logging
 import logging.config
 import osgeo.gdal as gdal
@@ -20,6 +21,7 @@ except ImportError:
     import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.expression import or_
 from tempfile import NamedTemporaryFile
 
 logging.config.fileConfig('logging.ini')
@@ -101,7 +103,16 @@ class ModisTimeSeriesHandler(object):
 
         # Create a point from the requested coordinates
         p = WKTSpatialElement('POINT(%s %s)' % coords, custom_crs)
-        tile = session.query(ModisExtent.name).filter(func.within(p, ModisExtent.geometry)).filter(ModisExtent.available == True).first()
+
+        countryConditions = []
+        for country in session.query(ModisAvailableCountry).filter(ModisAvailableCountry.available == True):
+            countryConditions.append(spfunc.within(p, country.geometry))
+
+        tile = session.query(ModisExtent.name)\
+            .filter(ModisExtent.available == True)\
+            .filter(spfunc.within(p, ModisExtent.geometry))\
+            .filter(or_(*countryConditions))\
+            .first()
         if tile is not None:
             modis_file = "/%s/%s/NDVI.tif" % (modis_datadir, tile.name)
             return modis_file
