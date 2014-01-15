@@ -20,12 +20,7 @@
    </MetaData>
    <LiteralData>
     DataType = integer
-    <Default>
-     CRS = urn:ogc:def:crs:EPSG:6.6:4326
-    </Default>
-    <Supported>
-     CRS = urn:ogc:def:crs:EPSG:6.6:3785
-    </Supported>
+    <Default>4326</Default>
    </LiteralData>
   [lat]
    Title = Input latitude
@@ -37,8 +32,7 @@
    </MetaData>
    <LiteralData>
     DataType = float
-    <Default>
-    </Default>
+    <Default></Default>
    </LiteralData>
   [lon]
    Title = Input longitude

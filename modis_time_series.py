@@ -1,6 +1,8 @@
 import sys
 import time
+import os
 
+import cgi
 from ConfigParser import ConfigParser
 from ModisExtent import ModisAvailableCountry
 from ModisExtent import ModisExtent
@@ -30,7 +32,10 @@ except ImportError:
     import StringIO
 
 logging.config.fileConfig('logging.ini')
+# Get the root logger from the config file
 log = logging.getLogger(__name__)
+# Get also the spatial logger, which logs the requested to a separate csv file
+spatiallog = logging.getLogger("spatial.logger")
 
 # ZOO Constants
 # See also http://zoo-project.org/docs/workshop/2012/first_service.html
@@ -43,7 +48,14 @@ def ModisTimeSeries(conf, inputs, outputs):
 
     lon = float(inputs['lon']['value'])
     lat = float(inputs['lat']['value'])
-    epsg = int(inputs['epsg']['value'])
+    try:
+        epsg = int(inputs['epsg']['value'])
+    except ValueError:
+        conf["lenv"]["message"] = "Parameter \"epsg\" is not valid or not supported."
+        return SERVICE_FAILED
+    if epsg != 4326:
+        conf["lenv"]["message"] = "Request CRS is not supported."
+        return SERVICE_FAILED
     imageWidth = int(inputs['width']['value'])
     imageHeight = int(inputs['height']['value'])
 
@@ -70,6 +82,12 @@ class ModisTimeSeriesHandler(object):
 
         # Get the path to the MODIS tile
         modis_file = self._get_tile(coords)
+        
+        # Log this request to the spatial file logger
+        # Get the IP
+        ip = cgi.escape(os.environ["REMOTE_ADDR"])
+        # Log the cordinates
+        spatiallog.info("%s,%s,\"%s\",%s" % (input_coords[0], input_coords[1], ip, modis_file != None))
 
         if modis_file is not None:
 

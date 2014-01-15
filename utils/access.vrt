@@ -1,0 +1,13 @@
+<OGRVRTDataSource>
+    <OGRVRTLayer name="access">
+        <SrcDataSource>access.csv</SrcDataSource>
+        <GeometryType>wkbPoint</GeometryType>
+        <LayerSRS>WGS84</LayerSRS>
+        <GeometryField encoding="PointFromColumns" x="lon" y="lat"/>
+        <Field name="time" type="Real" />
+        <Field name="lon" type="Real" />
+        <Field name="lat" type="Real" />
+        <Field name="ip" type="String" />
+        <Field name="image_available" type="String" />  
+    </OGRVRTLayer>
+</OGRVRTDataSource>
