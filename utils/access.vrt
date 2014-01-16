@@ -1,3 +1,11 @@
+<!--
+An OGR readable virtual format file, see also:
+http://www.gdal.org/ogr/drv_vrt.html
+
+This is used to read the log file of requested
+locations as OGR data source. Copy this file
+to the directory of your location access log.
+-->
 <OGRVRTDataSource>
     <OGRVRTLayer name="access">
         <SrcDataSource>access.csv</SrcDataSource>
