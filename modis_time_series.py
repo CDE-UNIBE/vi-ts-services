@@ -30,6 +30,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     import StringIO
+from random import random
 
 logging.config.fileConfig('logging.ini')
 # Get the root logger from the config file
@@ -41,6 +42,10 @@ spatiallog = logging.getLogger("spatial.logger")
 # See also http://zoo-project.org/docs/workshop/2012/first_service.html
 SERVICE_FAILED = 4
 SERVICE_SUCCEEDED = 3
+
+# Send all output especially the R output to the dump
+f = open(os.devnull, 'w')
+sys.stdout = f
 
 def ModisTimeSeries(conf, inputs, outputs):
 
@@ -92,20 +97,14 @@ class ModisTimeSeriesHandler(object):
         if modis_file is not None:
 
             array_int_values = self._get_value_from_gdal(coords, modis_file)
+            #array_int_values = self._get_random_values()
 
-            if mimeType == 'image/png':
-                self.outputs['timeseries']['value'] = self._create_plot(array_int_values, width, height)
-            else:
-                self.outputs['timeseries']['value'] = json.dumps({'data': array_int_values})
-
+            self.outputs['timeseries']['value'] = json.dumps(self._create_bfast_plot(array_int_values, width, height))
             return SERVICE_SUCCEEDED
 
         else:
 
-            if mimeType == 'image/png':
-                self.outputs['timeseries']['value'] = self._create_empty_image(width, height)
-            else:
-                self.outputs['timeseries']['value'] = json.dumps({'success': False, 'msg': "No imagery available for requested coordinates."})
+            self.outputs['timeseries']['value'] = json.dumps(self._create_empty_image(width, height))
             return SERVICE_SUCCEEDED
 
     def _get_tile(self, coords):
@@ -150,7 +149,7 @@ class ModisTimeSeriesHandler(object):
             return None
 	
     def _get_value_from_gdal(self, coords, datadir):
-
+    
         # start timing
         startTime = time.time()
         # coordinates to get pixel values for
@@ -221,7 +220,7 @@ class ModisTimeSeriesHandler(object):
         """
         Create a plot with R
         """
-
+        
         # Start R timing
         startTime = time.time()
 
@@ -229,7 +228,7 @@ class ModisTimeSeriesHandler(object):
 
         r = robjects.r
         grdevices = importr('grDevices')
-
+        
         vector = robjects.FloatVector(data_array)
 
         file = NamedTemporaryFile()
@@ -248,6 +247,65 @@ class ModisTimeSeriesHandler(object):
         return file.read()
 
         file.close()
+
+    def _create_bfast_plot(self, data_array, width, height):
+        """
+        Create a plot with R
+        """
+
+        # Start R timing
+        startTime = time.time()
+
+        rinterface.initr()
+
+        r = robjects.r
+        grdevices = importr('grDevices')
+
+        # Import the bfast package
+        bfast = importr('bfast')
+
+        b = robjects.FloatVector(data_array)
+
+        # arry by b to time serie vector
+        b_ts = r.ts(b, start=robjects.IntVector([2000, 4]), frequency = 23)
+
+        # calculate bfast
+        h = 23.0 / float(len(b_ts))
+        b_bfast = r.bfast(b_ts, h = h, season = "harmonic", max_iter = 2)
+
+        # Get the index names of the ListVector b_bfast
+        names = b_bfast.names
+        log.debug(names)
+
+        temp_datadir = self.config.get('main', 'temp.datadir')
+        temp_url = self.config.get('main', 'temp.url')
+        file = NamedTemporaryFile(suffix=".png", dir=temp_datadir, delete=False)
+
+        log.debug(file.name)
+        grdevices.png(file=file.name, width=width, height=height)
+        # Plotting code here
+        r.par(col="black")
+        r.plot(b_bfast)
+        # Close the device
+        grdevices.dev_off()
+
+        # End R timing and log it
+        endTime = time.time()
+        log.debug('It took ' + str(endTime - startTime) + ' seconds to initalize R and draw a plot.')
+
+        file.close()
+
+        result = {"file": "%s/%s" % (temp_url, file.name.split("/")[-1])}
+        try:
+            result['magnitude'] = str(tuple(b_bfast[names.index("Magnitude")])[0])
+        except ValueError:
+            pass
+        try:
+            result['time'] = str(tuple(b_bfast[names.index("Time")])[0])
+        except ValueError:
+            pass
+
+        return result
 
     def _create_empty_image(self, image_width, image_height):
 
@@ -268,11 +326,18 @@ class ModisTimeSeriesHandler(object):
         ctx.set_source_rgba(0, 0, 0, 0.85)
         ctx.show_text(text)
 
-        file = StringIO()
+        temp_datadir = self.config.get('main', 'temp.datadir')
+        temp_url = self.config.get('main', 'temp.url')
+        file = NamedTemporaryFile(suffix=".png", dir=temp_datadir, delete=False)
         surface.write_to_png(file)
-
-        log.debug(file.getvalue())
-
-        return file.getvalue()
-
         file.close()
+
+        return {"file": "%s/%s" % (temp_url, file.name.split("/")[-1])}
+
+    def _get_random_values(self):
+        """
+        A method only used during the development to replace the method
+        _get_value_from_gdal
+        """
+
+        return [random() for i in range(322)]

@@ -5,3 +5,7 @@ sqlalchemy.url = sqlite:////path/to/your/spatialite/database
 custom.crs = 10003
 ; Path to the MODIS directory
 modis.datadir = /path/to/your/modis/directory/
+; A web accessible directory to store temporary image files
+temp.datadir = /path/to/your/web/accessible/temporary/directory
+; The URL to the temporary image directory
+temp.url = http://localhost/path/to/temporary/directory

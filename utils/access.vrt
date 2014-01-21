@@ -8,7 +8,7 @@ to the directory of your location access log.
 -->
 <OGRVRTDataSource>
     <OGRVRTLayer name="access">
-        <SrcDataSource>access.csv</SrcDataSource>
+        <SrcDataSource relativeToVRT="1">access.csv</SrcDataSource>
         <GeometryType>wkbPoint</GeometryType>
         <LayerSRS>WGS84</LayerSRS>
         <GeometryField encoding="PointFromColumns" x="lon" y="lat"/>
