@@ -1,0 +1,55 @@
+[PlotTimeSeries]
+ Title = Get MODIS Time Series of any location
+ Abstract = Get a MODIS time series of any location
+ processVersion = 1
+ storeSupported = false
+ statusSupported = false
+ serviceProvider = plot_time_series
+ serviceType = Python
+ <MetaData>
+   title = PlotTimeSeries
+ </MetaData>
+ <DataInputs>
+  [timeseries]
+   Title = EPSG code of input coordinate system
+   Abstract = EPSG code of input coordinate system.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = EPSG TEST
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+   </ComplexData>
+  [width]
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    DataType = integer
+    <Default>512</Default>
+   </LiteralData>
+  [height]
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    DataType = integer
+    <Default>512</Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [plot]
+   Title = Time Series
+   Abstract = MODIS time series for input location
+   <MetaData>
+    title = Time Series
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+   </ComplexData>
+ </DataOutputs>

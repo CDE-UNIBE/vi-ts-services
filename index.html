@@ -1,0 +1,22 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=ExtractTimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=timeseries@mimeType=application/json">
+                Extract time series
+            </a>
+        </div>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotTimeSeries&DataInputs=timeseries={'data': [1,2,3,6]}&RawDataOutput=plot@mimeType=application/json">
+                Plot an array
+            </a>
+        </div>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=TimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=plot@mimeType=application/json">
+                Chain
+            </a>
+        </div>
+    </body>
+</html>

@@ -1,19 +1,19 @@
-[ModisTimeSeries]
- Title = Get MODIS Time Series of any location
- Abstract = Get a MODIS time series of any location
+[ExtractTimeSeries]
+ Title = Extract NDVI time series
+ Abstract = Extract NDVI time series from MODIS imagery
  processVersion = 1
  storeSupported = false
  statusSupported = false
- serviceProvider = modis_time_series
+ serviceProvider = extract_time_series
  serviceType = Python
  <MetaData>
-   title = ModisTimeSeries
+   title = ExtractTimeSeries
  </MetaData>
  <DataInputs>
   [epsg]
    Title = EPSG code of input coordinate system
    Abstract = EPSG code of input coordinate system.
-   minOccurs = 1
+   minOccurs = 0
    maxOccurs = 1
    <MetaData>
     title = EPSG TEST
@@ -60,8 +60,5 @@
      mimeType = application/json
      encoding = UTF-8
     </Default>
-    <Supported>
-     mimeType = image/png
-    </Supported>
    </ComplexData>
  </DataOutputs>

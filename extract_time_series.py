@@ -1,17 +1,17 @@
 import sys
 import time
-import os
 
-import cgi
 from ConfigParser import ConfigParser
 from ModisExtent import ModisAvailableCountry
 from ModisExtent import ModisExtent
 import cairo
+import cgi
 from gdalconst import GA_ReadOnly
 from geoalchemy import WKTSpatialElement
 from geoalchemy import functions as spfunc
 import logging
 import logging.config
+import os
 import osgeo.gdal as gdal
 import osgeo.osr as osr
 from pyspatialite import dbapi2 as spatialite
@@ -44,32 +44,32 @@ SERVICE_FAILED = 4
 SERVICE_SUCCEEDED = 3
 
 # Send all output especially the R output to the dump
-f = open(os.devnull, 'w')
-sys.stdout = f
+#f = open(os.devnull, 'w')
+#sys.stdout = f
 
-def ModisTimeSeries(conf, inputs, outputs):
+def ExtractTimeSeries(conf, inputs, outputs):
 
-    mimeType = outputs['timeseries']['mimeType']
+    try:
+        lon = float(inputs['lon']['value'])
+        lat = float(inputs['lat']['value'])
+    except ValueError:
+        conf["lenv"]["message"] = "Parameter \"lon\" or \"lat\" is not valid."
+        return SERVICE_FAILED
 
-    lon = float(inputs['lon']['value'])
-    lat = float(inputs['lat']['value'])
     try:
         epsg = int(inputs['epsg']['value'])
     except ValueError:
-        conf["lenv"]["message"] = "Parameter \"epsg\" is not valid or not supported."
-        return SERVICE_FAILED
-    if epsg != 4326:
+        epsg = 4326
+    if epsg not in [4326]:
         conf["lenv"]["message"] = "Request CRS is not supported."
         return SERVICE_FAILED
-    imageWidth = int(inputs['width']['value'])
-    imageHeight = int(inputs['height']['value'])
 
-    handler = ModisTimeSeriesHandler(conf, inputs, outputs)
-    result = handler.get_time_series((lon, lat), epsg, mimeType, imageWidth, imageHeight)
+    handler = ExtractTimeSeriesHandler(conf, inputs, outputs)
+    result = handler.extract_values((lon, lat), epsg)
 
     return result
 
-class ModisTimeSeriesHandler(object):
+class ExtractTimeSeriesHandler(object):
 
     def __init__(self, conf, inputs, outputs):
         self.conf = conf
@@ -79,6 +79,36 @@ class ModisTimeSeriesHandler(object):
         # Create a config parser
         self.config = ConfigParser()
         self.config.read('ModisTimeSeries.ini')
+
+    def extract_values(self, input_coords, epsg):
+
+        # Reproject the input coordinates to the MODIS sinusoidal projection
+        coords = self._reproject_coordinates(input_coords, epsg)
+
+        # Get the path to the MODIS tile
+        #modis_file = self._get_tile(coords)
+        modis_file = "yes"
+
+        # Log this request to the spatial file logger
+        # Get the IP
+        ip = cgi.escape(os.environ["REMOTE_ADDR"])
+        # Log the cordinates
+        spatiallog.info("%s,%s,\"%s\",%s" % (input_coords[0], input_coords[1], ip, modis_file != None))
+
+        if modis_file is not None:
+
+            #array_int_values = self._get_value_from_gdal(coords, modis_file)
+            array_int_values = self._get_random_values()
+
+            self.outputs['timeseries']['value'] = json.dumps({"success": True, "data": array_int_values})
+            self.outputs['timeseries']['mimeType'] = "application/json"
+            return SERVICE_SUCCEEDED
+
+        else:
+
+            self.outputs['timeseries']['value'] = json.dumps({"success": False, "data": None})
+            return SERVICE_FAILED
+
 
     def get_time_series(self, input_coords, epsg, mimeType, width=512, height=512):
 
@@ -96,8 +126,8 @@ class ModisTimeSeriesHandler(object):
 
         if modis_file is not None:
 
-            array_int_values = self._get_value_from_gdal(coords, modis_file)
-            #array_int_values = self._get_random_values()
+            #array_int_values = self._get_value_from_gdal(coords, modis_file)
+            array_int_values = self._get_random_values()
 
             self.outputs['timeseries']['value'] = json.dumps(self._create_bfast_plot(array_int_values, width, height))
             return SERVICE_SUCCEEDED
@@ -215,124 +245,6 @@ class ModisTimeSeriesHandler(object):
         (x, y, z) = ct.TransformPoint(float(coords[0]), float(coords[1]))
 
         return (x, y)
-
-    def _create_plot(self, data_array, width, height):
-        """
-        Create a plot with R
-        """
-        
-        # Start R timing
-        startTime = time.time()
-
-        rinterface.initr()
-
-        r = robjects.r
-        grdevices = importr('grDevices')
-        
-        vector = robjects.FloatVector(data_array)
-
-        file = NamedTemporaryFile()
-        grdevices.png(file=file.name, width=width, height=height)
-        # Plotting code here
-        r.par(col="black")
-        r.plot(vector, xlab="Image Nr", ylab="Values", main="", type="l")
-        # Close the device
-        grdevices.dev_off()
-
-        # End R timing and log it
-        endTime = time.time()
-        log.debug('It took ' + str(endTime - startTime) + ' seconds to initalize R and draw a plot.')
-
-        # Return the file content
-        return file.read()
-
-        file.close()
-
-    def _create_bfast_plot(self, data_array, width, height):
-        """
-        Create a plot with R
-        """
-
-        # Start R timing
-        startTime = time.time()
-
-        rinterface.initr()
-
-        r = robjects.r
-        grdevices = importr('grDevices')
-
-        # Import the bfast package
-        bfast = importr('bfast')
-
-        b = robjects.FloatVector(data_array)
-
-        # arry by b to time serie vector
-        b_ts = r.ts(b, start=robjects.IntVector([2000, 4]), frequency = 23)
-
-        # calculate bfast
-        h = 23.0 / float(len(b_ts))
-        b_bfast = r.bfast(b_ts, h = h, season = "harmonic", max_iter = 2)
-
-        # Get the index names of the ListVector b_bfast
-        names = b_bfast.names
-        log.debug(names)
-
-        temp_datadir = self.config.get('main', 'temp.datadir')
-        temp_url = self.config.get('main', 'temp.url')
-        file = NamedTemporaryFile(suffix=".png", dir=temp_datadir, delete=False)
-
-        log.debug(file.name)
-        grdevices.png(file=file.name, width=width, height=height)
-        # Plotting code here
-        r.par(col="black")
-        r.plot(b_bfast)
-        # Close the device
-        grdevices.dev_off()
-
-        # End R timing and log it
-        endTime = time.time()
-        log.debug('It took ' + str(endTime - startTime) + ' seconds to initalize R and draw a plot.')
-
-        file.close()
-
-        result = {"file": "%s/%s" % (temp_url, file.name.split("/")[-1])}
-        try:
-            result['magnitude'] = str(tuple(b_bfast[names.index("Magnitude")])[0])
-        except ValueError:
-            pass
-        try:
-            result['time'] = str(tuple(b_bfast[names.index("Time")])[0])
-        except ValueError:
-            pass
-
-        return result
-
-    def _create_empty_image(self, image_width, image_height):
-
-        # Check pycairo capabilities
-        if not (cairo.HAS_IMAGE_SURFACE and cairo.HAS_PNG_FUNCTIONS):
-            raise HTTPBadRequest('cairo was not compiled with ImageSurface and PNG support')
-
-        # Create a new cairo surface
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, int(image_width), int(image_height))
-
-        ctx = cairo.Context(surface)
-
-        text = "No imagery available for requested coordinates."
-
-        x_bearing, y_bearing, width, height, x_advance, y_advance = ctx.text_extents (text)
-
-        ctx.move_to((image_width / 2) - (width / 2), (image_height / 2) + (height / 2))
-        ctx.set_source_rgba(0, 0, 0, 0.85)
-        ctx.show_text(text)
-
-        temp_datadir = self.config.get('main', 'temp.datadir')
-        temp_url = self.config.get('main', 'temp.url')
-        file = NamedTemporaryFile(suffix=".png", dir=temp_datadir, delete=False)
-        surface.write_to_png(file)
-        file.close()
-
-        return {"file": "%s/%s" % (temp_url, file.name.split("/")[-1])}
 
     def _get_random_values(self):
         """
