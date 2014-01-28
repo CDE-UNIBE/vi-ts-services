@@ -86,8 +86,7 @@ class ExtractTimeSeriesHandler(object):
         coords = self._reproject_coordinates(input_coords, epsg)
 
         # Get the path to the MODIS tile
-        #modis_file = self._get_tile(coords)
-        modis_file = "yes"
+        modis_file = self._get_tile(coords)
 
         # Log this request to the spatial file logger
         # Get the IP
@@ -97,8 +96,8 @@ class ExtractTimeSeriesHandler(object):
 
         if modis_file is not None:
 
-            #array_int_values = self._get_value_from_gdal(coords, modis_file)
-            array_int_values = self._get_random_values()
+            array_int_values = self._get_value_from_gdal(coords, modis_file)
+            #array_int_values = self._get_random_values()
 
             self.outputs['timeseries']['value'] = json.dumps({"success": True, "data": array_int_values})
             self.outputs['timeseries']['mimeType'] = "application/json"
@@ -218,8 +217,8 @@ class ExtractTimeSeriesHandler(object):
 
             # read data and add the value to the string
             data = band.ReadAsArray(xOffset, yOffset, 1, 1)
-            value = data[0, 0]
-            result.append(int(value))
+            value = float(data[0, 0])
+            result.append(value / 10000.0)
 
         endTime = time.time()
         # figure out how long the script took to run
