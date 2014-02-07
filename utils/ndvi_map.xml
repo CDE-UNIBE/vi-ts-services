@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Map[]>
+<Map srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over"
+    maximum-extent="-20037508.34,-20037508.34,20037508.34,20037508.34">
+    <Parameters>
+        <Parameter name="bounds">-180,-85.0511,180,85.0511</Parameter>
+        <Parameter name="center">0,0,2</Parameter>
+        <Parameter name="format">png</Parameter>
+        <Parameter name="minzoom">0</Parameter>
+        <Parameter name="maxzoom">16</Parameter>
+        <Parameter name="name"><![CDATA[VITS Tiles Map]]>
+        </Parameter>
+    </Parameters>
+    <Style name="ndvi" filter-mode="first" >
+        <Rule>
+            <RasterSymbolizer opacity="1">
+                <!--RasterColorizer default-mode="linear" default-color="white" epsilon="1">
+                    <stop color="blue" value="-10000.0"  mode = "linear"/>
+                    <stop color="indigo" value="8500.0"  mode = "linear"/>
+                    <stop color="#ff2211" value="9500.0"  mode = "linear"/>
+                    <stop color="#051852" value="-10000.0"/>
+                    <stop value="-3000.0" color="#051852"/>
+                    <stop value="-1800.0" color="#ffffff"/>
+                    <stop value="0.0" color="#ffffff"/>
+                    <stop value="250.0" color="#cec5b4"/>
+                    <stop value="750.0" color="#bfa37c"/>
+                    <stop value="1000.0" color="#000000"/>
+                    <stop value="1250.0" color="#b3ae60"/>
+                    <stop value="1500.0" color="#a3b550"/>
+                    <stop value="1750.0" color="#90aa3c"/>
+                    <stop value="2330.0" color="#a6c31d"/>
+                    <stop value="2660.0" color="#87b703"/>
+                    <stop value="3330.0" color="#79af01"/>
+                    <stop value="3660.0" color="#65a300"/>
+                    <stop value="4330.0" color="#4e9700"/>
+                    <stop value="4660.0" color="#2b8404"/>
+                    <stop value="5500.0" color="#007200"/>
+                    <stop value="6500.0" color="#005a01"/>
+                    <stop value="7500.0" color="#004900"/>
+                    <stop value="8500.0" color="#003800"/>
+                    <stop value="9500.0" color="#001f00"/>
+                    <stop color="#051852" value="-10000.0"/>
+                    <stop value="-3000.0" color="#051852"/>
+                    <stop value="-1800.0" color="#ffffff"/>
+                    <stop value="0.0" color="#ffffff"/>
+                    <stop value="250.0" color="#cec5b4"/>
+                    <stop value="750.0" color="#bfa37c"/>
+                    <stop value="1000.0" color="#000000"/>
+                    <stop value="1250.0" color="#b3ae60"/>
+                    <stop value="1500.0" color="#a3b550"/>
+                    <stop value="1750.0" color="#90aa3c"/>
+                    <stop value="2330.0" color="#a6c31d"/>
+                    <stop value="2660.0" color="#87b703"/>
+                    <stop value="3330.0" color="#79af01"/>
+                    <stop value="3660.0" color="#65a300"/>
+                    <stop value="4330.0" color="#4e9700"/>
+                    <stop value="4660.0" color="#2b8404"/>
+                    <stop value="5500.0" color="#007200"/>
+                    <stop value="6500.0" color="#005a01"/>
+                    <stop value="7500.0" color="#004900"/>
+                    <stop value="8500.0" color="#003800"/>
+                    <stop value="9500.0" color="#001f00"/>
+                </RasterColorizer-->
+            </RasterSymbolizer>
+        </Rule>
+    </Style>
+    <Layer name="ndvimod13q1" srs="+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over">
+        <StyleName>ndvi</StyleName>
+        <Datasource>
+            <Parameter name="file">/home/adrian/Data/MODIS/processed/NDVI/h16v08/NDVI_color.tif</Parameter>
+            <Parameter name="type">gdal</Parameter>
+        </Datasource>
+    </Layer>
+</Map>

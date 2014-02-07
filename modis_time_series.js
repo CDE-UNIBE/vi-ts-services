@@ -37,7 +37,12 @@ function TimeSeries(conf, inputs, outputs){
     var lat = parseFloat(inputs.lat.value);
     var epsg = parseInt(inputs.epsg.value);
     if(epsg != 4326){
-        return {result: ZOO.SERVICE_FAILED, outputs: {message: "Request CRS is not supported."}};
+        return {
+            result: ZOO.SERVICE_FAILED,
+            outputs: {
+                message: "Request CRS is not supported."
+            }
+        };
     }
 
     // Create a WPS Format
@@ -76,7 +81,7 @@ function TimeSeries(conf, inputs, outputs){
     
     var plotExecuteResult = plotProcess.Execute(plotInputs);
     var plotResult = wpsFormat.read(plotExecuteResult);
-    
+
     return {
         "result": ZOO.SERVICE_SUCCEEDED,
         "outputs": [{
