@@ -1,21 +1,40 @@
 <html>
     <head>
-
+        <style type="text/css">
+            div {
+                margin: 2px;
+            }
+        </style>
     </head>
     <body>
         <div>
-            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=ExtractTimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=timeseries@mimeType=application/json">
-                Extract time series
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=ExtractTimeSeries&DataInputs=band=NDVI;lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=timeseries@mimeType=application/json">
+                Extract time series from NDVI band
             </a>
         </div>
         <div>
-            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotTimeSeries&DataInputs=timeseries={'data': [1,2,3,6]}&RawDataOutput=plot@mimeType=application/json">
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=ExtractTimeSeries&DataInputs=band=QUAL;lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=timeseries@mimeType=application/json">
+                Extract time series from QUAL band
+            </a>
+        </div>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotTimeSeries&DataInputs=timeseries={&quot;data&quot;: [1,2,3,6]}&RawDataOutput=plot@mimeType=application/json">
                 Plot an array
             </a>
         </div>
         <div>
-            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=TimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=plot@mimeType=application/json">
-                Chain
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotNdviRawTimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=plot@mimeType=application/json">
+                Plot raw time series
+            </a>
+        </div>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotNdviBfastTimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=plot@mimeType=application/json">
+                Plot NDVI Bfast time series
+            </a>
+        </div>
+        <div>
+            <a href="http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=PlotNdviFittingFunctionTimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326&RawDataOutput=plot@mimeType=application/json">
+                Plot NDVI fitting function time series
             </a>
         </div>
     </body>

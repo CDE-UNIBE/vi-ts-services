@@ -1,10 +1,10 @@
-[TimeSeries]
- Title = Get MODIS Time Series of any location
- Abstract = Get a MODIS time series of any location
+[PlotNdviRawTimeSeries]
+ Title = Plot a raw NDVI time series
+ Abstract = Plot a raw NDVI time series
  processVersion = 1
  storeSupported = false
  statusSupported = true
- serviceProvider = modis_time_series.js
+ serviceProvider = plot_ndvi_raw_time_series.js
  serviceType = JS
  <MetaData>
    title = TimeSeries

@@ -60,10 +60,10 @@ sys.stdout = f
 def PlotTimeSeries(conf, inputs, outputs):
 
     try:
-        log.debug(inputs['timeseries']['value'])
+        log.debug("Input timeseries is %s" % inputs['timeseries']['value'])
         timeseries = json.loads(str(inputs['timeseries']['value']).strip())
-    except ValueError: # as e:
-        #log.debug(e)
+    except ValueError as e:
+        log.debug(e)
         conf["lenv"]["message"] = "Parameter \"timeseries\" is not valid or not supported."
         return SERVICE_FAILED
 
@@ -114,45 +114,46 @@ class PlotTimeSeriesHandler():
         grdevices.png(file=file.name, width=width, height=height)
 
         ts = r.ts(vector, start=robjects.IntVector([2000, 4]), frequency=23)
-        r.layout(r.matrix(robjects.IntVector([1, 2, 3, 4]), ncol=1, nrow=4))
+        #r.layout(r.matrix(robjects.IntVector([1, 2, 3, 4]), ncol=1, nrow=4))
 
         ## PLOT 1: Raw NDVI values
 
-        r.par(mar=robjects.FloatVector([0, 4, .2, 4]))   # mar für die Abstände ausserhalb des plots in der Reihenfolge unten - links - oben - rechts. Oben Null, der Rest sind default-Werte
+        #r.par(mar=robjects.FloatVector([0, 4, .2, 4]))   # mar für die Abstände ausserhalb des plots in der Reihenfolge unten - links - oben - rechts. Oben Null, der Rest sind default-Werte
 
         r.plot(ts, type="l", axes=False, ylab="Raw NDVI value", xlab="")
         r.box()
         r.axis(2, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
+        r.axis(1, labels=robjects.StrVector(['2000', '2002', '2004', '2006', '2008', '2010', '2012', '2014']), at=robjects.FloatVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]))
         r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2) # vertikale linien bei jedem jahr, lty ist line type
         r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
 
         ## PLOT 2:
 
-        r.par(mar=robjects.IntVector([0, 4, 0, 4]))
-        r.plot(ts, type="l", col="grey", axes=False, ylab="Asym Gaussian fitting", xlab="")
-        r.box()
-        r.axis(4, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
-        r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
-        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
+        #r.par(mar=robjects.IntVector([0, 4, 0, 4]))
+        #r.plot(ts, type="l", col="grey", axes=False, ylab="Asym Gaussian fitting", xlab="")
+        #r.box()
+        #r.axis(4, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
+        #r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
+        #r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
 
         ## PLOT 3:
 
-        r.par(mar=robjects.IntVector([0, 4, 0, 4]))
-        r.plot(ts, type="l", col="grey", axes=False, ylab="Double logistic fitting", xlab="")
-        r.box()
-        r.axis(2, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
-        r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
-        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
+        #r.par(mar=robjects.IntVector([0, 4, 0, 4]))
+        #r.plot(ts, type="l", col="grey", axes=False, ylab="Double logistic fitting", xlab="")
+        #r.box()
+        #r.axis(2, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
+        #r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
+        #r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
 
         ## PLOT 4:
 
-        r.par(mar=robjects.IntVector([2, 4, 0, 4]))
-        r.plot(ts, type="l", col="grey", axes=False, ylab="Trends", xlab="")
-        r.box()
-        r.axis(4, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
-        r.axis(1, labels=robjects.StrVector(['2000', '2002', '2004', '2006', '2008', '2010', '2012', '2014']), at=robjects.FloatVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]))
-        r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
-        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
+        #r.par(mar=robjects.IntVector([2, 4, 0, 4]))
+        #r.plot(ts, type="l", col="grey", axes=False, ylab="Trends", xlab="")
+        #r.box()
+        #r.axis(4, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
+        #r.axis(1, labels=robjects.StrVector(['2000', '2002', '2004', '2006', '2008', '2010', '2012', '2014']), at=robjects.FloatVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]))
+        #r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2)
+        #r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
 
         # Close the device
         grdevices.dev_off()

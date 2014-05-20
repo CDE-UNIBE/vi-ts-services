@@ -1,0 +1,64 @@
+[PlotNdviBfastTimeSeries]
+ Title = Get BFAST diagrams from MODIS NDVI
+ Abstract = Get BFAST diagrams from MODIS NDVI
+ processVersion = 1
+ storeSupported = false
+ statusSupported = true
+ serviceProvider = plot_ndvi_bfast_time_series.js
+ serviceType = JS
+ <MetaData>
+   title = NDVIBfast
+ </MetaData>
+ <DataInputs>
+  [epsg]
+   Title = EPSG code of input coordinate system
+   Abstract = EPSG code of input coordinate system.
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = EPSG TEST
+   </MetaData>
+   <LiteralData>
+    DataType = integer
+    <Default>4326</Default>
+   </LiteralData>
+  [lat]
+   Title = Input latitude
+   Abstract = Input latitude
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Input latitude
+   </MetaData>
+   <LiteralData>
+    DataType = float
+    <Default></Default>
+   </LiteralData>
+  [lon]
+   Title = Input longitude
+   Abstract = Input longitude
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Input longitude
+   </MetaData>
+   <LiteralData>
+    DataType = float
+    <Default>
+    </Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [plot]
+   Title = Time Series
+   Abstract = MODIS time series for input location
+   <MetaData>
+    title = Time Series
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+   </ComplexData>
+ </DataOutputs>

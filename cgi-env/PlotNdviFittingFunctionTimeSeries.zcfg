@@ -1,13 +1,13 @@
-[NDVIBfast]
- Title = Get BFAST diagrams from MODIS NDVI
- Abstract = Get BFAST diagrams from MODIS NDVI
+[PlotNdviFittingFunctionTimeSeries]
+ Title = Get a fitting function diagrams from MODIS NDVI
+ Abstract = Get a fitting function diagrams from MODIS NDVI
  processVersion = 1
  storeSupported = false
  statusSupported = true
- serviceProvider = ndvi_bfast.js
+ serviceProvider = plot_ndvi_fitting_function_time_series.js
  serviceType = JS
  <MetaData>
-   title = NDVIBfast
+   title = PlotNdviFittingFunctionTimeSeries
  </MetaData>
  <DataInputs>
   [epsg]

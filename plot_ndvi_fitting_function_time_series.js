@@ -25,10 +25,9 @@
 
 /*
  * Example request:
- * http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=TimeSeries&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326;width=800;height=300&RawDataOutput=plot@mimeType=application/json
- *
+ * http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=NDVIBfast&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326;width=800;height=300&RawDataOutput=plot@mimeType=application/json
  */
-function TimeSeries(conf, inputs, outputs){
+function PlotNdviFittingFunctionTimeSeries(conf, inputs, outputs){
 
     var outputMimeType = outputs.plot.mimeType;
 
@@ -45,7 +44,17 @@ function TimeSeries(conf, inputs, outputs){
         };
     }
 
-    // Create a WPS Format
+    // Get the image width and height from the request or set the defaults
+    var width = 1024;
+    if(inputs.width){
+        width = parseFloat(inputs.width.value);
+    }
+    var height = 512;
+    if(inputs.height){
+        height = parseFloat(inputs.height.value);
+    }
+    
+    // Create a WPS Format to parse the results from the subprocesses
     var wpsFormat = new ZOO.Format.WPS();
 
     // Set up the extract time series process
@@ -62,31 +71,46 @@ function TimeSeries(conf, inputs, outputs){
         epsg: {
             type: "literal",
             value: epsg
+        },
+        band: {
+            type: "literal",
+            value: "NDVI"
         }
     };
-
+    
     // Get the result
     var extractExecuteResult= extractProcess.Execute(extractInputs);
     var extractResult = wpsFormat.read(extractExecuteResult);
 
+    alert(extractResult.value);
+
     // Set up the plotting time series process
-    var plotProcess = new ZOO.Process("http://localhost/cgi-bin/zoo_loader.cgi", "PlotTimeSeries");
-    var plotInputs = {
+    var fittingFuncProcess = new ZOO.Process("http://localhost/cgi-bin/zoo_loader.cgi", "PlotFittingFunction");
+    var fittingFuncInputs = {
         timeseries: {
             type: "complex",
             value: extractResult.value,
             mimeType: "application/json"
+        },
+        width: {
+            type: "literal",
+            value: width
+        },
+        height: {
+            type: "literal",
+            value: height
         }
     };
     
-    var plotExecuteResult = plotProcess.Execute(plotInputs);
-    var plotResult = wpsFormat.read(plotExecuteResult);
-
+    var fittingFuncExecuteResult = fittingFuncProcess.Execute(fittingFuncInputs);
+    alert(fittingFuncExecuteResult);
+    var fittingFuncResult = wpsFormat.read(fittingFuncExecuteResult);
+    
     return {
         "result": ZOO.SERVICE_SUCCEEDED,
         "outputs": [{
             "name": "plot",
-            "value": plotResult.value,
+            "value": fittingFuncResult.value,
             "mimeType": outputMimeType
         }]
     };

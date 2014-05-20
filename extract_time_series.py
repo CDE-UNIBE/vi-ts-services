@@ -4,7 +4,6 @@ import time
 from ConfigParser import ConfigParser
 from ModisExtent import ModisAvailableCountry
 from ModisExtent import ModisExtent
-import cairo
 import cgi
 from gdalconst import GA_ReadOnly
 from geoalchemy import WKTSpatialElement
@@ -15,9 +14,6 @@ import os
 import osgeo.gdal as gdal
 import osgeo.osr as osr
 from pyspatialite import dbapi2 as spatialite
-import rpy2.rinterface as rinterface
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
 try:
     import simplejson as json
 except ImportError:
@@ -61,11 +57,16 @@ def ExtractTimeSeries(conf, inputs, outputs):
     except ValueError:
         epsg = 4326
     if epsg not in [4326]:
-        conf["lenv"]["message"] = "Request CRS is not supported."
+        conf["lenv"]["message"] = "Requested CRS is not supported."
+        return SERVICE_FAILED
+    
+    band = str(inputs['band']['value'])
+    if band.lower() not in ['ndvi', 'qual']:
+        conf["lenv"]["message"] = "Requested band is not available."
         return SERVICE_FAILED
 
     handler = ExtractTimeSeriesHandler(conf, inputs, outputs)
-    result = handler.extract_values((lon, lat), epsg)
+    result = handler.extract_values((lon, lat), epsg, band)
 
     return result
 
@@ -80,13 +81,15 @@ class ExtractTimeSeriesHandler(object):
         self.config = ConfigParser()
         self.config.read('ModisTimeSeries.ini')
 
-    def extract_values(self, input_coords, epsg):
+    def extract_values(self, input_coords, epsg, band):
+        
+        log.debug("Extract values with coords %s and band %s" % (input_coords, band))
 
         # Reproject the input coordinates to the MODIS sinusoidal projection
         coords = self._reproject_coordinates(input_coords, epsg)
 
         # Get the path to the MODIS tile
-        modis_file = self._get_tile(coords)
+        modis_file = self._get_tile(coords, band)
 
         # Log this request to the spatial file logger
         # Get the IP
@@ -109,34 +112,7 @@ class ExtractTimeSeriesHandler(object):
             return SERVICE_FAILED
 
 
-    def get_time_series(self, input_coords, epsg, mimeType, width=512, height=512):
-
-        # Reproject the input coordinates to the MODIS sinusoidal projection
-        coords = self._reproject_coordinates(input_coords, epsg)
-
-        # Get the path to the MODIS tile
-        modis_file = self._get_tile(coords)
-        
-        # Log this request to the spatial file logger
-        # Get the IP
-        ip = cgi.escape(os.environ["REMOTE_ADDR"])
-        # Log the cordinates
-        spatiallog.info("%s,%s,\"%s\",%s" % (input_coords[0], input_coords[1], ip, modis_file != None))
-
-        if modis_file is not None:
-
-            #array_int_values = self._get_value_from_gdal(coords, modis_file)
-            array_int_values = self._get_random_values()
-
-            self.outputs['timeseries']['value'] = json.dumps(self._create_bfast_plot(array_int_values, width, height))
-            return SERVICE_SUCCEEDED
-
-        else:
-
-            self.outputs['timeseries']['value'] = json.dumps(self._create_empty_image(width, height))
-            return SERVICE_SUCCEEDED
-
-    def _get_tile(self, coords):
+    def _get_tile(self, coords, band):
         """
         Get the directory path to the requested MODIS subtile using a spatially
         enabled database.
@@ -144,10 +120,13 @@ class ExtractTimeSeriesHandler(object):
 
         # Get the SQLAlchemy URL from the configuration
         sqlalchemy_url = self.config.get('main', 'sqlalchemy.url')
+        log.debug("sqlalchemy_url is set to %s" % sqlalchemy_url)
         # the MODIS data directory
         modis_datadir = self.config.get('main', 'modis.datadir')
+        log.debug("MODIS data directory is set to %s" % modis_datadir)
         # and the custom CRS for the MODIS sinusoidal projection.
         custom_crs = self.config.getint('main', 'custom.crs')
+        log.debug("Custom CRS is set to %s" % custom_crs)
 
         # Engine, which the Session will use for connection resources
         engine = create_engine(sqlalchemy_url, module=spatialite)
@@ -158,7 +137,7 @@ class ExtractTimeSeriesHandler(object):
 
         # Create a point from the requested coordinates
         p = WKTSpatialElement('POINT(%s %s)' % coords, custom_crs)
-
+        
         countryConditions = []
         for country in session.query(ModisAvailableCountry).filter(ModisAvailableCountry.available == True):
             countryConditions.append(spfunc.within(p, country.geometry))
@@ -169,7 +148,7 @@ class ExtractTimeSeriesHandler(object):
             .filter(or_(*countryConditions))\
             .first()
         if tile is not None:
-            modis_file = "/%s/%s/NDVI.tif" % (modis_datadir, tile.name)
+            modis_file = "%s/%s/%s/%s.tif" % (modis_datadir, band, tile.name, band)
             return modis_file
 
         else:

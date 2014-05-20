@@ -10,6 +10,19 @@
    title = ExtractTimeSeries
  </MetaData>
  <DataInputs>
+  [band]
+   Title = MODIS band
+   Abstract = This is the MODIS band which the time series are extracted from
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = MODIS band
+   </MetaData>
+   <LiteralData>
+    dataType = string
+    AllowedValues = NDVI,QUAL
+    <Default>NDVI</Default>
+   </LiteralData>
   [epsg]
    Title = EPSG code of input coordinate system
    Abstract = EPSG code of input coordinate system.

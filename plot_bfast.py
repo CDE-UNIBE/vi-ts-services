@@ -34,10 +34,10 @@ SERVICE_SUCCEEDED = 3
 f = open(os.devnull, 'w')
 sys.stdout = f
 
-def BfastTimeSeries(conf, inputs, outputs):
+def PlotBfast(conf, inputs, outputs):
 
     try:
-        timeseries = json.loads(inputs['timeseries']['value'])
+        timeseries = json.loads(str(inputs['timeseries']['value']).strip())
     except ValueError:
         conf["lenv"]["message"] = "Parameter \"timeseries\" is not valid or not supported."
         return SERVICE_FAILED

@@ -27,7 +27,7 @@
  * Example request:
  * http://localhost/cgi-bin/zoo_loader.cgi?ServiceProvider=&metapath=&Service=WPS&Request=Execute&Version=1.0.0&Identifier=NDVIBfast&DataInputs=lon=-11.1676025390625;lat=6.980954426458497;epsg=4326;width=800;height=300&RawDataOutput=plot@mimeType=application/json
  */
-function NDVIBfast(conf, inputs, outputs){
+function PlotNdviBfastTimeSeries(conf, inputs, outputs){
 
     var outputMimeType = outputs.plot.mimeType;
 
@@ -45,7 +45,7 @@ function NDVIBfast(conf, inputs, outputs){
     }
 
     // Get the image width and height from the request or set the defaults
-    var width = 1024
+    var width = 1024;
     if(inputs.width){
         width = parseFloat(inputs.width.value);
     }
@@ -71,15 +71,19 @@ function NDVIBfast(conf, inputs, outputs){
         epsg: {
             type: "literal",
             value: epsg
+        },
+        band: {
+            type: "literal",
+            value: "NDVI"
         }
     };
-
+    
     // Get the result
     var extractExecuteResult= extractProcess.Execute(extractInputs);
     var extractResult = wpsFormat.read(extractExecuteResult);
 
     // Set up the plotting time series process
-    var bfastProcess = new ZOO.Process("http://localhost/cgi-bin/zoo_loader.cgi", "BfastTimeSeries");
+    var bfastProcess = new ZOO.Process("http://localhost/cgi-bin/zoo_loader.cgi", "PlotBfast");
     var bfastInputs = {
         timeseries: {
             type: "complex",

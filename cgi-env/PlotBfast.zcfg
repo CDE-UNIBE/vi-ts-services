@@ -1,13 +1,13 @@
-[BfastTimeSeries]
+[PlotBfast]
  Title = Get MODIS Time Series of any location
  Abstract = Get a MODIS time series of any location
  processVersion = 1
  storeSupported = false
  statusSupported = false
- serviceProvider = bfast_time_series
+ serviceProvider = plot_bfast
  serviceType = Python
  <MetaData>
-   title = BfastTimeSeries
+   title = PlotBfast
  </MetaData>
  <DataInputs>
   [timeseries]

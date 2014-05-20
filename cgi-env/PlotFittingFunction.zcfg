@@ -1,0 +1,55 @@
+[PlotFittingFunction]
+ Title = Plot a fitting function using the 4253H,twice method
+ Abstract = Plot a fitting function using the 4253H,twice method
+ processVersion = 1
+ storeSupported = false
+ statusSupported = false
+ serviceProvider = plot_fitting_function
+ serviceType = Python
+ <MetaData>
+   title = PlotFittingFunction
+ </MetaData>
+ <DataInputs>
+  [timeseries]
+   Title = Time series
+   Abstract = Time series
+   minOccurs = 1
+   maxOccurs = 1
+   <MetaData>
+    title = Time series
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+   </ComplexData>
+  [width]
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    DataType = integer
+    <Default>512</Default>
+   </LiteralData>
+  [height]
+   minOccurs = 0
+   maxOccurs = 1
+   <LiteralData>
+    DataType = integer
+    <Default>512</Default>
+   </LiteralData>
+ </DataInputs>
+ <DataOutputs>
+  [plot]
+   Title = Time Series
+   Abstract = MODIS time series for input location
+   <MetaData>
+    title = Time Series
+   </MetaData>
+   <ComplexData>
+    <Default>
+     mimeType = application/json
+     encoding = UTF-8
+    </Default>
+   </ComplexData>
+ </DataOutputs>
