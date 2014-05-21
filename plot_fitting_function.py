@@ -89,7 +89,7 @@ class FittingFunctionTimeSeriesHandler():
 
         # Make a time series from the vector
         b_ts = r.ts(b, start=robjects.IntVector([2000, 4]), frequency=23)
-
+        
         b_fitting = r.my4253Htwice(x=b_ts)
 
         temp_datadir = self.config.get('main', 'temp.datadir')
@@ -99,8 +99,13 @@ class FittingFunctionTimeSeriesHandler():
         log.debug("Writing resulting diagram to file %s" % file.name)
         grdevices.png(file=file.name, width=width, height=height)
         # Plotting code here
-        r.par(col="black")
-        r.plot(b_fitting, ylab="Double logistic fitting")
+        #r.par(col="black")
+        r.plot(b_fitting, type="l", axes=False, ylab="Double logistic fitting", ylim=robjects.FloatVector([0.0, 1.0]))
+        r.box()
+        r.axis(2, labels=robjects.StrVector(['0.0', '0.2', '0.4', '0.6', '0.8', '1.0']), at=robjects.FloatVector([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
+        r.axis(1, labels=robjects.StrVector(['2000', '2002', '2004', '2006', '2008', '2010', '2012', '2014']), at=robjects.FloatVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]))
+        r.abline(v=robjects.IntVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]), col="lightgrey", lty=2) # vertikale linien bei jedem jahr, lty ist line type
+        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000, 1.0000]), col="lightgrey", lty=2)
         # Close the device
         grdevices.dev_off()
 

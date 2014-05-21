@@ -120,12 +120,12 @@ class PlotTimeSeriesHandler():
 
         #r.par(mar=robjects.FloatVector([0, 4, .2, 4]))   # mar für die Abstände ausserhalb des plots in der Reihenfolge unten - links - oben - rechts. Oben Null, der Rest sind default-Werte
 
-        r.plot(ts, type="l", axes=False, ylab="Raw NDVI value", xlab="")
+        r.plot(ts, type="l", axes=False, ylab="Raw NDVI value", xlab="", ylim=robjects.FloatVector([0.0, 1.0]))
         r.box()
-        r.axis(2, labels=robjects.StrVector(['0', '0.2', '0.4', '0.6', '0.8', '1']), at=robjects.FloatVector([0, 0.2, 0.4, 0.6, 0.8, 1]))
+        r.axis(2, labels=robjects.StrVector(['0.0', '0.2', '0.4', '0.6', '0.8', '1.0']), at=robjects.FloatVector([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
         r.axis(1, labels=robjects.StrVector(['2000', '2002', '2004', '2006', '2008', '2010', '2012', '2014']), at=robjects.FloatVector([2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014]))
-        r.abline(v=[2000, 2014, 1], col="lightgrey", lty=2) # vertikale linien bei jedem jahr, lty ist line type
-        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000]), col="lightgrey", lty=2)
+        r.abline(v=[2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014], col="lightgrey", lty=2) # vertikale linien bei jedem jahr, lty ist line type
+        r.abline(h=robjects.FloatVector([0, 0.2000, 0.4000, 0.6000, 0.8000, 1.0000]), col="lightgrey", lty=2)
 
         ## PLOT 2:
 
